@@ -23,7 +23,7 @@ const login = async (req, res) => {
   const secret = process.env.secret;
 
   if (!user) {
-    return res.status(400).send("The user not found");
+    return res.status(200).json({ error: "User not found" });
   }
 
   if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
@@ -35,9 +35,11 @@ const login = async (req, res) => {
       secret,
       { expiresIn: "1d" }
     );
-    res.status(200).send({ user: user.email, name: user.name, token: token });
+    res
+      .status(200)
+      .send({ user: user.email, name: user.name, token: token, error: null });
   } else {
-    res.status(400).send("Invalid Password");
+    res.status(200).json({ error: "Invalid Password" });
   }
 };
 
@@ -51,6 +53,18 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getCurrentUser = async (req, res) => {
+  const user = await User.findById(req.user.userId).select("-passwordHash");
+
+  if (!user) {
+    return res
+      .status(500)
+      .json({ eror: "The user with the given ID was not found" });
+  }
+  res.status(200).send(user);
+};
+
 exports.login = login;
 exports.signUp = signUp;
 exports.getUsers = getUsers;
+exports.getCurrentUser = getCurrentUser;

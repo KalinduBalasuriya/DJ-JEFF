@@ -10,7 +10,7 @@ function authJwt() {
 }
 async function isRevoked(req, payload, done) {
   req.user = payload.payload;
-  console.log(payload.payload.role);
+  console.log(payload.payload);
 }
 
 module.exports = authJwt;
