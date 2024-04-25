@@ -58,7 +58,7 @@ const getCurrentUser = async (req, res) => {
 
   if (!user) {
     return res.status(500).json({
-      success: true,
+      success: false,
       message: "User not found",
       data: {
         user: user,

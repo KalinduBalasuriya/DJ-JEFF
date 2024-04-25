@@ -14,9 +14,11 @@ app.use(morgan("tiny"));
 
 //Routes
 const usersRouter = require("./routers/userRoutes");
+const songsRouter = require("./routers/songsRoutes");
 const api = process.env.API_URL;
 
 app.use(`${api}/users`, usersRouter);
+app.use(`${api}/songs`, songsRouter);
 
 mongoose
   .connect(process.env.CONNECTION_STRING, {
