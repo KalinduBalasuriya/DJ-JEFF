@@ -57,11 +57,27 @@ const getCurrentUser = async (req, res) => {
   const user = await User.findById(req.user.userId).select("-passwordHash");
 
   if (!user) {
-    return res
-      .status(500)
-      .json({ eror: "The user with the given ID was not found" });
+    return res.status(500).json({
+      success: true,
+      message: "User not found",
+      data: {
+        user: user,
+
+        token: req.headers["authorization"],
+      },
+      errorMessage: "User not found",
+    });
   }
-  res.status(200).send(user);
+  res.status(200).json({
+    success: true,
+    message: "User logged in success",
+    data: {
+      user: user,
+
+      token: req.headers["authorization"],
+    },
+    errorMessage: "User logged in success",
+  });
 };
 
 exports.login = login;
