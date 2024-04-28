@@ -18,7 +18,7 @@ const signUp = async (req, res) => {
 };
 
 //User Login
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   const secret = process.env.secret;
 
@@ -41,6 +41,7 @@ const login = async (req, res) => {
   } else {
     res.status(200).json({ error: "Invalid Password" });
   }
+  next();
 };
 
 const getUsers = async (req, res) => {
