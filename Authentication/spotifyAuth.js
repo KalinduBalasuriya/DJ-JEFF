@@ -1,50 +1,64 @@
-const SpotifyWebApi = require("spotify-web-api-node");
+const spotifyWebApi = require("spotify-web-api-node");
+const spotifyAPI = require("../app");
 
-// let spotifyAccessToken = null;
-// let spotifyTokenExpiresIn = null;
-// let spotifyAPI = null;
-// const spotifyAuthorization = async (req, res, next) => {
-// let spotifyApi = new spotifyWebAPI({
-//   clientId: process.env.SPOTIFY_CLIENT_ID,
-//   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-// });
-//   spotifyAPI = spotifyApi;
-//   try {
-//     const tokenData = await spotifyApi.clientCredentialsGrant();
+let spotifyAccessToken = null;
+let spotifyTokenExpiresIn = null;
+let tokenIssuedAt = null;
 
-//     spotifyApi.setAccessToken(tokenData.body["access_token"]);
+const spotifyAuthorization = async (req, res) => {
+  try {
+    const tokenData = await spotifyAPI.spotifyAPI.clientCredentialsGrant();
+    spotifyAPI.spotifyAPI.setAccessToken(tokenData.body["access_token"]);
 
-//     spotifyAccessToken = tokenData.body["access_token"];
-//     spotifyTokenExpiresIn = tokenData.body["expires_in"];
+    spotifyAccessToken = tokenData.body["access_token"];
+    spotifyTokenExpiresIn = tokenData.body["expires_in"];
+    tokenIssuedAt = Math.floor(Date.now() / 1000);
 
-//     res.status(200).json({
-//       token: tokenData.body["access_token"],
-//       tokenExpiresIn: tokenData.body["expires_in"],
-//     });
-//   } catch (err) {
-//     res.send(err.message);
-//   }
-
-//   console.log(spotifyAPI);
-// };
-var scopes = ["user-read-private", "user-read-email"];
-
-const spotifyApi = new SpotifyWebApi({
-  clientId: process.env.SPOTIFY_CLIENT_ID,
-  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-});
-
-const spAuth = async (req, res) => {
-  const spotifyApi = new SpotifyWebApi({
-    clientId: process.env.SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-    redirectUri: process.env.SPOTIFY_REDIRECT_URI,
-  });
-
-  const authoURL = spotifyApi.createAuthorizeURL(scopes);
-
-  res.redirect(authoURL);
+    res.status(200).json({
+      token: tokenData.body["access_token"],
+      tokenExpiresIn:
+        Math.floor(Date.now() / 1000) + tokenData.body["expires_in"],
+      currentTime: Math.floor(Date.now() / 1000),
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-exports.spAuth = spAuth;
-// exports.spotifyAuthorization = spotifyAuthorization;
+const refreshToken = async (req, res) => {
+  try {
+    const newTokenData = await spotifyAPI.spotifyAPI.clientCredentialsGrant();
+    spotifyAPI.spotifyAPI.setAccessToken(newTokenData.body["access_token"]);
+
+    spotifyAccessToken = newTokenData.body["access_token"];
+    spotifyTokenExpiresIn = newTokenData.body["expires_in"];
+    tokenIssuedAt = Math.floor(Date.now() / 1000);
+
+    console.log("Spotify access token refreshed!");
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const checkToken = async (req, res, next) => {
+  if (spotifyAccessToken) {
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    const expirationTime = tokenIssuedAt + 10;
+    const is = expirationTime <= currentTime;
+    console.log(`current tim: ${currentTime}`);
+    console.log(`expiration tim: ${expirationTime}`);
+    console.log(is);
+    if (is) {
+      await refreshToken(req, res);
+    } else if (!is) {
+      console.log("----------------VALID SPOTIFY TOKEN-------------");
+    }
+  }
+  if (!spotifyAccessToken) {
+    await refreshToken(req, res);
+  }
+  next();
+};
+// exports.spotifyAPI = spotifyAPI;
+exports.checkToken = checkToken;
+exports.spotifyAuthorization = spotifyAuthorization;
