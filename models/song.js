@@ -13,6 +13,9 @@ const songSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  imageUrl: {
+    type: String,
+  },
 });
 
 songSchema.virtual("id").get(function () {

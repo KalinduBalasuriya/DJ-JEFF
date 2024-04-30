@@ -12,6 +12,7 @@ const {
 } = require("../controllers/userController");
 const authJwt = require("../Authentication/auth");
 const { validateRole } = require("../Authentication/accessController");
+const { checkToken } = require("../Authentication/spotifyAuth");
 
 router.post("/login", login);
 router.post("/signup", signUp);
