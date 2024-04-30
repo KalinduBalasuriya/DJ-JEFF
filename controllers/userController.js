@@ -13,12 +13,12 @@ const signUp = async (req, res) => {
   });
 
   user = await user.save();
-  if (!user) return res.status(400).send("he user cannot be created!");
+  if (!user) return res.status(400).send("The user cannot be created!");
   res.send(user);
 };
 
 //User Login
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   const secret = process.env.secret;
 
@@ -41,11 +41,12 @@ const login = async (req, res) => {
   } else {
     res.status(200).json({ error: "Invalid Password" });
   }
+  next();
 };
 
 const getUsers = async (req, res) => {
   const userList = await User.find();
-  res.send(userList);
+  res.json({ users: userList });
   if (!userList) {
     return res.status(500).json({
       success: false,

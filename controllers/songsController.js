@@ -1,5 +1,58 @@
 const { Song } = require("../models/song");
+const spotifyAPI = require("../app");
 
+//Get all categories from Spotify (For Admin)
+const getCategories = async (req, res) => {
+  spotifyAPI.spotifyAPI
+    .getCategories({
+      limit: 20,
+    })
+    .then(
+      function (data) {
+        res.status(200).json({
+          items: data.body.categories.items,
+        });
+      },
+      function (err) {
+        console.log("Something went wrong!", err);
+      }
+    );
+};
+
+//Get all playlists belong to a category
+const getCategoryPlaylists = async (req, res) => {
+  const categoryId = req.params.categoryid;
+  spotifyAPI.spotifyAPI
+    .getPlaylistsForCategory(categoryId, {
+      limit: 20,
+      offset: 0,
+    })
+    .then(
+      function (data) {
+        res.status(200).json({
+          data: data.body.playlists.items,
+        });
+      },
+      function (err) {
+        console.log("Something went wrong!", err);
+      }
+    );
+};
+
+//Get a playlist using a category ID
+const getPlaylist = async (req, res) => {
+  const playListId = req.params.playlistid;
+  spotifyAPI.spotifyAPI.getPlaylist(playListId).then(
+    function (data) {
+      res.status(200).json({
+        data: data,
+      });
+    },
+    function (err) {
+      console.log("Something went wrong!", err);
+    }
+  );
+};
 const getAllSongs = async (req, res) => {
   const songList = await Song.find();
 
@@ -55,5 +108,8 @@ const addSong = async (req, res) => {
   });
 };
 
+exports.getCategoryPlaylists = getCategoryPlaylists;
+exports.getPlaylist = getPlaylist;
+exports.getCategories = getCategories;
 exports.getAllSongs = getAllSongs;
 exports.addSong = addSong;
