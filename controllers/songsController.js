@@ -10,11 +10,23 @@ const getCategories = async (req, res) => {
     .then(
       function (data) {
         res.status(200).json({
-          items: data.body.categories.items,
+          success: true,
+          message: "Categories fetched",
+          data: {
+            songs: data.body.categories.items,
+          },
+          errorMessage: null,
         });
       },
       function (err) {
-        console.log("Something went wrong!", err);
+        res.status(500).json({
+          success: false,
+          message: "Categories fetching failed",
+          data: {
+            songs: null,
+          },
+          errorMessage: err.message,
+        });
       }
     );
 };
@@ -30,25 +42,67 @@ const getCategoryPlaylists = async (req, res) => {
     .then(
       function (data) {
         res.status(200).json({
-          data: data.body.playlists.items,
+          success: true,
+          message: "Playlists of the category fetched",
+          data: {
+            songs: data.body.playlists.items,
+            // token: req.headers["authorization"],
+          },
+          errorMessage: null,
         });
       },
       function (err) {
+        res.status(500).json({
+          success: false,
+          message: "Category playlists fetching failed",
+          data: {
+            songs: null,
+          },
+          errorMessage: err.message,
+        });
         console.log("Something went wrong!", err);
       }
     );
 };
 
+///Get tracks according to the track id
+const test = async (req, res) => {
+  console.log("test");
+  const data = req.body;
+  spotifyAPI.spotifyAPI.getTracks(["4iV5W9uYEdYUVa79Axb7Rh"]).then(
+    function (data) {
+      res.send(data.body);
+    },
+    function (err) {
+      console.error(err);
+    }
+  );
+};
 //Get a playlist using a category ID
 const getPlaylist = async (req, res) => {
   const playListId = req.params.playlistid;
   spotifyAPI.spotifyAPI.getPlaylist(playListId).then(
     function (data) {
       res.status(200).json({
-        data: data,
+        success: true,
+        message: "Playlist fetched successfuly",
+        data: {
+          songs: data.body.tracks,
+          // token: req.headers["authorization"],
+        },
+        errorMessage: null,
       });
     },
     function (err) {
+      res.status(500).json({
+        success: false,
+        message: "playlist fetching failed",
+        data: {
+          songs: null,
+          // token: req.headers["authorization"],
+        },
+        errorMessage: err.message,
+      });
       console.log("Something went wrong!", err);
     }
   );
@@ -107,7 +161,7 @@ const addSong = async (req, res) => {
     errorMessage: "Song added successfuly",
   });
 };
-
+exports.test = test;
 exports.getCategoryPlaylists = getCategoryPlaylists;
 exports.getPlaylist = getPlaylist;
 exports.getCategories = getCategories;

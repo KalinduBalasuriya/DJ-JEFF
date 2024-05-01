@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const songSchema = mongoose.Schema({
+  spotifyId: {
+    type: String,
+    required: true,
+  },
   songName: {
     type: String,
     required: true,
@@ -15,6 +19,14 @@ const songSchema = mongoose.Schema({
   },
   imageUrl: {
     type: String,
+  },
+  isRequested: {
+    type: Boolean,
+    default: false,
+  },
+  isPlayed: {
+    type: Boolean,
+    default: false,
   },
 });
 
