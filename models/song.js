@@ -28,6 +28,10 @@ const songSchema = mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  userRequestCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 songSchema.virtual("id").get(function () {

@@ -87,7 +87,7 @@ const getPlaylist = async (req, res) => {
         success: true,
         message: "Playlist fetched successfuly",
         data: {
-          songs: data.body.tracks,
+          songs: data.body.tracks.items,
           // token: req.headers["authorization"],
         },
         errorMessage: null,
