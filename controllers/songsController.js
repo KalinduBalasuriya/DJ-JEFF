@@ -1,5 +1,6 @@
 const { Song } = require("../models/song");
 const spotifyAPI = require("../app");
+const { SongFeature } = require("../models/songFeature");
 
 //Get all categories from Spotify (For Admin)
 const getCategories = async (req, res) => {
@@ -66,17 +67,100 @@ const getCategoryPlaylists = async (req, res) => {
 };
 
 ///Get tracks according to the track id
-const test = async (req, res) => {
-  console.log("test");
-  const data = req.body;
-  spotifyAPI.spotifyAPI.getTracks(["4iV5W9uYEdYUVa79Axb7Rh"]).then(
-    function (data) {
-      res.send(data.body);
-    },
-    function (err) {
-      console.error(err);
+const addTracks = async (req, res) => {
+  const trackIds = req.body;
+
+  try {
+    //Fetching audio tracks
+    const songTracks = await spotifyAPI.spotifyAPI.getTracks(trackIds);
+    if (!songTracks) {
+      return res.status(500).json({
+        success: false,
+        message: "No tracks found from Spotify",
+        data: {
+          songs: null,
+          // token: req.headers["authorization"],
+        },
+        errorMessage: "Fetch tracks from Spotify failed",
+      });
     }
-  );
+
+    //Fetching audio features of tracks
+    const audioFeatures =
+      await spotifyAPI.spotifyAPI.getAudioFeaturesForTracks(trackIds);
+
+    // Filter null values of tracks
+    let tracks = songTracks.body.tracks;
+    tracks = tracks.filter((track) => track !== null);
+
+    // Filter null values of audio features
+    let features = audioFeatures.body.audio_features;
+    features = features.filter((feature) => feature !== null);
+
+    //Filter ids of tracks didn't fetched from spotiify
+    const nullTracks = trackIds.filter(
+      (trackId) => !tracks.some((track) => track.id === trackId)
+    )[0];
+
+    //Filter ids of audio features didn't fetched from spotiify
+    const nullFeatures = trackIds.filter(
+      (trackId) => !features.some((feature) => feature.id === trackId)
+    );
+
+    //saving audio track in Database
+    for (const element of tracks) {
+      const existingSong = await Song.findOne({ spotifyId: element.id });
+
+      if (!existingSong) {
+        let song = new Song({
+          spotifyId: element.id,
+          songName: element.name,
+          artistName: element.artists[0].name,
+          imageUrl: element.album.images[2].url,
+          isRequested: false,
+          isPlayed: false,
+          userRequestCount: 0,
+        });
+        song = await song.save();
+      }
+    }
+
+    //saving audio track in Database
+    for (element of features) {
+      const existingFeature = await SongFeature.findOne({
+        spotifyId: element.id,
+      });
+      if (!existingFeature) {
+        let feature = new SongFeature({
+          spotifyId: element.id,
+          dancability: element.dancability,
+          bpm: element.tempo,
+          loudness: element.loudness,
+        });
+        feature = await feature.save();
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Songs added to the Database successfully",
+      data: {
+        missingSongIds: nullTracks,
+        missingAudioFeatureIds: nullfeatures,
+      },
+      errorMessage: null,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "playlist fetching failed",
+      data: {
+        songs: null,
+        // token: req.headers["authorization"],
+      },
+      errorMessage: err.message,
+    });
+  }
 };
 //Get a playlist using a category ID
 const getPlaylist = async (req, res) => {
@@ -108,8 +192,7 @@ const getPlaylist = async (req, res) => {
   );
 };
 const getAllSongs = async (req, res) => {
-  const songList = await Song.find();
-
+  const songList = await Song.find().populate("songFeatures");
   if (!songList) {
     return res(200).json({
       success: false,
@@ -161,7 +244,8 @@ const addSong = async (req, res) => {
     errorMessage: "Song added successfuly",
   });
 };
-exports.test = test;
+
+exports.addTracks = addTracks;
 exports.getCategoryPlaylists = getCategoryPlaylists;
 exports.getPlaylist = getPlaylist;
 exports.getCategories = getCategories;

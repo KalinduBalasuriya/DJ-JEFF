@@ -9,10 +9,7 @@ const songSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  BPM: {
-    type: Number,
-    required: true,
-  },
+
   artistName: {
     type: String,
     required: true,
@@ -33,7 +30,11 @@ const songSchema = mongoose.Schema({
     default: 0,
   },
 });
-
+songSchema.virtual("songFeatures", {
+  ref: "SongFeature", // ref model to use
+  localField: "spotifyId", // field in mealSchema
+  foreignField: "spotifyId", // The field in meatSchema.
+});
 songSchema.virtual("id").get(function () {
   return this._id.toHexString();
 });
