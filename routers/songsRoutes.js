@@ -4,6 +4,7 @@ const {
   getCategoryPlaylists,
   getPlaylist,
   addTracks,
+  deleteTracks,
 } = require("../controllers/Admin/songsControllerAdmin");
 const authJwt = require("../Authentication/auth");
 const { validateRole } = require("../Authentication/accessController");
@@ -16,11 +17,42 @@ const {
 const router = express.Router();
 
 //routes for songs
-router.get("/allsongs", getAllSongs);
-router.get("/allcategories", checkToken, getCategories);
-router.get("/categories/:categoryid", checkToken, getCategoryPlaylists);
-router.get("/categoryplaylists/:playlistid", checkToken, getPlaylist);
-router.post("/addtracks", checkToken, addTracks);
+router.get("/allsongs", authJwt(), getAllSongs);
+router.get(
+  "/allcategories",
+  authJwt(),
+  validateRole(["Admin"]),
+  checkToken,
+  getCategories
+);
+router.get(
+  "/categories/:categoryid",
+  authJwt(),
+  validateRole(["Admin"]),
+  checkToken,
+  getCategoryPlaylists
+);
+router.get(
+  "/categoryplaylists/:playlistid",
+  authJwt(),
+  validateRole(["Admin"]),
+  checkToken,
+  getPlaylist
+);
+router.post(
+  "/addtracks",
+  authJwt(),
+  validateRole(["Admin"]),
+  checkToken,
+  addTracks
+);
+router.delete(
+  "/deletetracks",
+  authJwt(),
+  validateRole(["Admin"]),
+  checkToken,
+  deleteTracks
+);
 
 //routes for users
 router.put("/guestuser/requestsong/:spotifyid", authJwt(), requestSong);
