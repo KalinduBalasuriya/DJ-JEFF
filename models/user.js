@@ -22,6 +22,7 @@ const userSchema = mongoose.Schema({
     enum: ["Admin", "Seller", "Guest"],
     default: "Guest",
   },
+  requestedSongs: [String],
 });
 
 userSchema.virtual("id").get(function () {

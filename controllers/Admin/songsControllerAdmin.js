@@ -1,8 +1,8 @@
-const { Song } = require("../models/song");
-const spotifyAPI = require("../app");
-const { SongFeature } = require("../models/songFeature");
+const { Song } = require("../../models/song");
+const spotifyAPI = require("../../app");
+const { SongFeature } = require("../../models/songFeature");
 
-//Get all categories from Spotify (For Admin)
+/////////////////Get all categories from Spotify (For Admin)
 const getCategories = async (req, res) => {
   spotifyAPI.spotifyAPI
     .getCategories({
@@ -32,7 +32,7 @@ const getCategories = async (req, res) => {
     );
 };
 
-//Get all playlists belong to a category
+///////////////////////Get all playlists belong to a category//////////////////////////
 const getCategoryPlaylists = async (req, res) => {
   const categoryId = req.params.categoryid;
   spotifyAPI.spotifyAPI
@@ -66,7 +66,7 @@ const getCategoryPlaylists = async (req, res) => {
     );
 };
 
-///Get tracks according to the track id
+///////////////////////////////Get tracks according to the track id//////////////////////
 const addTracks = async (req, res) => {
   const trackIds = req.body;
 
@@ -146,7 +146,7 @@ const addTracks = async (req, res) => {
       message: "Songs added to the Database successfully",
       data: {
         missingSongIds: nullTracks,
-        missingAudioFeatureIds: nullfeatures,
+        missingAudioFeatureIds: nullFeatures,
       },
       errorMessage: null,
     });
@@ -162,7 +162,8 @@ const addTracks = async (req, res) => {
     });
   }
 };
-//Get a playlist using a category ID
+
+///////////////////////////////Get a playlist of a category using a category ID//////////////////////////
 const getPlaylist = async (req, res) => {
   const playListId = req.params.playlistid;
   spotifyAPI.spotifyAPI.getPlaylist(playListId).then(
@@ -190,7 +191,10 @@ const getPlaylist = async (req, res) => {
       console.log("Something went wrong!", err);
     }
   );
+  ////////////////////////////////////////////////////
 };
+
+///////////////////////////////Get all the songs in our Database/////////////////////////
 const getAllSongs = async (req, res) => {
   const songList = await Song.find().populate("songFeatures");
   if (!songList) {
@@ -204,44 +208,16 @@ const getAllSongs = async (req, res) => {
       errorMessage: "Songs not found",
     });
   }
-
+  const dataCount = songList.length;
   return res.status(200).json({
     success: true,
     message: "Songs fetched successfuly",
     data: {
       songs: songList,
+      count: dataCount,
       // token: req.headers["authorization"],
     },
     errorMessage: "Songs fetched successfuly",
-  });
-};
-
-const addSong = async (req, res) => {
-  let song = new Song({
-    songName: req.body.songName,
-    BPM: req.body.bpm,
-    artistName: req.body.artistName,
-  });
-
-  song = await song.save();
-  if (!song)
-    return res.status(400).json({
-      success: false,
-      message: "Song cannot be added",
-      data: {
-        songs: null,
-        // token: req.headers["authorization"],
-      },
-      errorMessage: "Song cannot be added",
-    });
-  return res.status(200).json({
-    success: true,
-    message: "Songs added successfuly",
-    data: {
-      songs: song,
-      // token: req.headers["authorization"],
-    },
-    errorMessage: "Song added successfuly",
   });
 };
 
@@ -250,4 +226,3 @@ exports.getCategoryPlaylists = getCategoryPlaylists;
 exports.getPlaylist = getPlaylist;
 exports.getCategories = getCategories;
 exports.getAllSongs = getAllSongs;
-exports.addSong = addSong;

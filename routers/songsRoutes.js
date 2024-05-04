@@ -1,15 +1,18 @@
 const express = require("express");
 const {
   getAllSongs,
-  addSong,
   getCategoryPlaylists,
   getPlaylist,
   addTracks,
-} = require("../controllers/songsController");
+} = require("../controllers/Admin/songsControllerAdmin");
 const authJwt = require("../Authentication/auth");
 const { validateRole } = require("../Authentication/accessController");
-const { getCategories } = require("../controllers/songsController");
+const { getCategories } = require("../controllers/Admin/songsControllerAdmin");
 const { checkToken } = require("../Authentication/spotifyAuth");
+const {
+  requestSong,
+  myRequests,
+} = require("../controllers/Guest/songControllerGuest");
 const router = express.Router();
 
 //routes for songs
@@ -20,6 +23,9 @@ router.get("/categoryplaylists/:playlistid", checkToken, getPlaylist);
 router.post("/addtracks", checkToken, addTracks);
 
 //routes for users
-router.post("/addsong", authJwt(), validateRole(["Admin"]), addSong);
+router.put("/guestuser/requestsong/:spotifyid", authJwt(), requestSong);
+router.get("/guestuser/myrequests/", authJwt(), myRequests);
+
+// router.post("/addsong", authJwt(), validateRole(["Admin"]), addSong);
 
 module.exports = router;
