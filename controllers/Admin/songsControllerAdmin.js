@@ -100,17 +100,39 @@ const addTracks = async (req, res) => {
     //Filter ids of tracks didn't fetched from spotiify
     const nullTracks = trackIds.filter(
       (trackId) => !tracks.some((track) => track.id === trackId)
-    )[0];
+    );
 
     //Filter ids of audio features didn't fetched from spotiify
     const nullFeatures = trackIds.filter(
       (trackId) => !features.some((feature) => feature.id === trackId)
     );
+    /////Here checking is all the fetched songs already in the playlist(Database)
+    const fetchedTracks = trackIds.filter((trackId) =>
+      tracks.some((track) => track.id === trackId)
+    );
+    const isAllFetchedTracksExisting =
+      (
+        await Song.find({
+          spotifyId: !{ $in: fetchedTracks },
+        })
+      ).length === 0;
+    if (isAllFetchedTracksExisting) {
+      return res.status(200).json({
+        success: true,
+        message: "Track(s) already in the playlist",
+        data: {
+          missingSongIds: nullTracks,
+          missingAudioFeatureIds: nullFeatures,
+        },
+        errorMessage: "Track(s) already in the playlist",
+      });
+    }
+    console.log(tracks.length);
+    console.log(isAllFetchedTracksExisting);
 
     //saving audio track in Database
     for (const element of tracks) {
       const existingSong = await Song.findOne({ spotifyId: element.id });
-
       if (!existingSong) {
         let song = new Song({
           spotifyId: element.id,
@@ -196,31 +218,84 @@ const getPlaylist = async (req, res) => {
 
 ///////////////////////////////Get all the songs in our Database/////////////////////////
 const getAllSongs = async (req, res) => {
-  const songList = await Song.find().populate("songFeatures");
-  if (!songList) {
-    return res(200).json({
-      success: false,
-      message: "No songs found!",
+  try {
+    const songList = await Song.find().populate("songFeatures");
+    if (!songList) {
+      return res(200).json({
+        success: false,
+        message: "No songs found!",
+        data: {
+          songs: null,
+          // token: req.headers["authorization"],
+        },
+        errorMessage: "Songs not found",
+      });
+    }
+    const dataCount = songList.length;
+    return res.status(200).json({
+      success: true,
+      message: "Songs fetched successfuly",
       data: {
-        songs: null,
+        songs: songList,
+        count: dataCount,
         // token: req.headers["authorization"],
       },
-      errorMessage: "Songs not found",
+      errorMessage: "Songs fetched successfuly",
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      data: null,
+      errorMessage: err.message,
     });
   }
-  const dataCount = songList.length;
-  return res.status(200).json({
-    success: true,
-    message: "Songs fetched successfuly",
-    data: {
-      songs: songList,
-      count: dataCount,
-      // token: req.headers["authorization"],
-    },
-    errorMessage: "Songs fetched successfuly",
-  });
 };
 
+const deleteTracks = async (req, res) => {
+  const tracksToBeDeleted = req.body;
+  console.log(tracksToBeDeleted);
+
+  try {
+    Song.find;
+    const result = await Song.deleteMany({
+      spotifyId: { $in: tracksToBeDeleted },
+    });
+    if (result.deletedCount < tracksToBeDeleted.length) {
+      return res.status(200).json({
+        success: false,
+        message:
+          result.deletedCount === 0
+            ? "Cannot delete tracks"
+            : "Some tracks cannot be deleted",
+        data: null,
+        errorMessage:
+          result.deletedCount === 0
+            ? "Cannot delete tracks"
+            : "Some tracks cannot be deleted",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Songs deleted successfuly",
+      data: {
+        deletedTrackIds: tracksToBeDeleted,
+        tracksNotFound: null,
+      },
+      errorMessage: null,
+    });
+  } catch (err) {
+    res.status(200).json({
+      success: false,
+      message: err.message,
+      data: null,
+      errorMessage: err.message,
+    });
+  }
+};
+
+exports.deleteTracks = deleteTracks;
 exports.addTracks = addTracks;
 exports.getCategoryPlaylists = getCategoryPlaylists;
 exports.getPlaylist = getPlaylist;
