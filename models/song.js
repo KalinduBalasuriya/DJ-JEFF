@@ -17,7 +17,19 @@ const songSchema = mongoose.Schema({
   imageUrl: {
     type: String,
   },
-  isRequested: {
+  requestData: {
+    type: {
+      isRequested: Boolean,
+      requestedUser: { type: String },
+      requestedTrack: { type: String },
+    },
+    default: {
+      isRequested: false,
+      requestedUser: null,
+      requestedTrack: null,
+    },
+  },
+  isPlaying: {
     type: Boolean,
     default: false,
   },

@@ -11,7 +11,7 @@ function authJwt() {
 async function isRevoked(req, payload, done) {
   // console.log(req.headers["authorization"]);
   req.user = payload.payload;
-  // console.log(payload.payload);
+  console.log(payload.payload);
 }
 
 module.exports = authJwt;
