@@ -50,7 +50,7 @@ const requestSong = async (req, res) => {
       errorMessage: "Track successfully added to the DJ's que",
     });
   } catch (err) {
-    res.status(200).json({
+    res.status(500).json({
       success: false,
       message: err.message,
       data: null,
@@ -80,7 +80,7 @@ const myRequests = async (req, res) => {
       errorMessage: "Requested tracks fetched successfully",
     });
   } catch (error) {
-    res.status(200).json({
+    res.status(500).json({
       success: false,
       message: err.message,
       data: null,
