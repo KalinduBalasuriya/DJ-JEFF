@@ -13,6 +13,7 @@ const { checkToken } = require("../Authentication/spotifyAuth");
 const {
   requestSong,
   myRequests,
+  getDjQue,
 } = require("../controllers/Guest/songControllerGuest");
 const router = express.Router();
 
@@ -57,6 +58,7 @@ router.delete(
 //routes for users
 router.put("/guestuser/requestsong/:spotifyid", authJwt(), requestSong);
 router.get("/guestuser/myrequests/", authJwt(), myRequests);
+router.get("/getbpmque", getDjQue);
 
 // router.post("/addsong", authJwt(), validateRole(["Admin"]), addSong);
 
