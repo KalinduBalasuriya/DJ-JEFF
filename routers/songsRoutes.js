@@ -5,6 +5,7 @@ const {
   getPlaylist,
   addTracks,
   deleteTracks,
+  deleteAllTracks,
 } = require("../controllers/Admin/songsControllerAdmin");
 const authJwt = require("../Authentication/auth");
 const { validateRole } = require("../Authentication/accessController");
@@ -54,6 +55,7 @@ router.delete(
   checkToken,
   deleteTracks
 );
+router.delete("/deletealltracks", deleteAllTracks);
 
 //routes for users
 router.put("/guestuser/requestsong/:spotifyid", authJwt(), requestSong);

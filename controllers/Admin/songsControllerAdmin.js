@@ -66,7 +66,7 @@ const getCategoryPlaylists = async (req, res) => {
     );
 };
 
-///////////////////////////////Get tracks according to the track id//////////////////////
+///////////////////////////////Add tracks to to the DB//////////////////////
 const addTracks = async (req, res) => {
   const trackIds = req.body;
 
@@ -84,7 +84,6 @@ const addTracks = async (req, res) => {
         errorMessage: "Fetch tracks from Spotify failed",
       });
     }
-
     //Fetching audio features of tracks
     const audioFeatures =
       await spotifyAPI.spotifyAPI.getAudioFeaturesForTracks(trackIds);
@@ -110,13 +109,15 @@ const addTracks = async (req, res) => {
     const fetchedTracks = trackIds.filter((trackId) =>
       tracks.some((track) => track.id === trackId)
     );
+    const isDatabaseEmpty = !(await Song.find().length);
+    console.log(`Is DB empty? :${isDatabaseEmpty}`);
     const isAllFetchedTracksExisting =
       (
         await Song.find({
           spotifyId: !{ $in: fetchedTracks },
         })
       ).length === 0;
-    if (isAllFetchedTracksExisting) {
+    if (isAllFetchedTracksExisting && !isAllFetchedTracksExisting) {
       return res.status(200).json({
         success: true,
         message: "Track(s) already in the playlist",
@@ -147,19 +148,22 @@ const addTracks = async (req, res) => {
       }
     }
 
-    //saving audio track in Database
+    //saving audio track features in Database
     for (element of features) {
-      const existingFeature = await SongFeature.findOne({
+      const existingFeature = await Song.findOne({
         spotifyId: element.id,
       });
-      if (!existingFeature) {
-        let feature = new SongFeature({
-          spotifyId: element.id,
-          dancability: element.dancability,
-          bpm: element.tempo,
-          loudness: element.loudness,
-        });
-        feature = await feature.save();
+      if (existingFeature && existingFeature.SongFeature === null) {
+        await Song.findOneAndUpdate(
+          { spotifyId: element.id },
+          {
+            "songFeatures.spotifyId": element.id,
+            "songFeatures.bpm": element.tempo,
+            "songFeatures.danceability": element.danceability,
+            "songFeatures.loudness": element.loudness,
+          },
+          { new: true, useFindAndModify: false }
+        );
       }
     }
 
@@ -252,6 +256,7 @@ const getAllSongs = async (req, res) => {
   }
 };
 
+////////////////////////////////Delete tracks /////////////////////////////////////////////////////////
 const deleteTracks = async (req, res) => {
   const tracksToBeDeleted = req.body;
   console.log(tracksToBeDeleted);
@@ -295,7 +300,17 @@ const deleteTracks = async (req, res) => {
   }
 };
 
+const deleteAllTracks = async (req, res) => {
+  try {
+    const deleteAll = await Song.deleteMany();
+    res.status(200).send(deleteAll.deletedCount);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+};
+
 exports.deleteTracks = deleteTracks;
+exports.deleteAllTracks = deleteAllTracks;
 exports.addTracks = addTracks;
 exports.getCategoryPlaylists = getCategoryPlaylists;
 exports.getPlaylist = getPlaylist;
