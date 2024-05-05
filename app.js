@@ -28,6 +28,9 @@ if (spotifyApi) {
 }
 
 app.get("/spotifyAuth", spotifyAuthorization);
+app.get("/", (req, res) => {
+  res.status(200).send("Server is running..");
+});
 
 //Routes
 const usersRouter = require("./routers/userRoutes");
