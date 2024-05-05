@@ -12,7 +12,7 @@ const requestSong = async (req, res) => {
     const user = await User.findById(userId);
     const song = await Song.findOne({
       spotifyId: songId,
-    }).populate("songFeatures");
+    });
 
     if (!user || !song) {
       return res.status(500).json({
