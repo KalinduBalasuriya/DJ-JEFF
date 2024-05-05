@@ -1,8 +1,9 @@
+const { populate } = require("dotenv");
 const { Request } = require("../../models/request");
 const { Song } = require("../../models/song");
 const { User } = require("../../models/user");
 
-//Add a track to the Database
+/////////////////////////////////////Request a track to the DJ/////////////////////////////////////////////////
 const requestSong = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -59,6 +60,7 @@ const requestSong = async (req, res) => {
   }
 };
 
+///////////////////////////////////////////////////// Get My reuests songs list//////////////////////////////////////////////////////
 const myRequests = async (req, res) => {
   const userId = req.user.userId;
   try {
@@ -89,5 +91,17 @@ const myRequests = async (req, res) => {
   }
 };
 
+const getDjQue = async (req, res) => {
+  try {
+    const bpmQue = await Song.find().sort({ "songFeatures.bpm": -1 });
+    // .sort({ "songFeatures.bpm": 1 });
+    console.log(bpmQue);
+    res.status(200).send(bpmQue);
+  } catch (err) {
+    res.send(err.message);
+  }
+};
+
+exports.getDjQue = getDjQue;
 exports.requestSong = requestSong;
 exports.myRequests = myRequests;

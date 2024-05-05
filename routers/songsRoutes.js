@@ -5,6 +5,7 @@ const {
   getPlaylist,
   addTracks,
   deleteTracks,
+  deleteAllTracks,
 } = require("../controllers/Admin/songsControllerAdmin");
 const authJwt = require("../Authentication/auth");
 const { validateRole } = require("../Authentication/accessController");
@@ -13,6 +14,7 @@ const { checkToken } = require("../Authentication/spotifyAuth");
 const {
   requestSong,
   myRequests,
+  getDjQue,
 } = require("../controllers/Guest/songControllerGuest");
 const router = express.Router();
 
@@ -53,10 +55,12 @@ router.delete(
   checkToken,
   deleteTracks
 );
+router.delete("/deletealltracks", deleteAllTracks);
 
 //routes for users
 router.put("/guestuser/requestsong/:spotifyid", authJwt(), requestSong);
 router.get("/guestuser/myrequests/", authJwt(), myRequests);
+router.get("/getbpmque", getDjQue);
 
 // router.post("/addsong", authJwt(), validateRole(["Admin"]), addSong);
 
