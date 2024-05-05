@@ -90,10 +90,10 @@ const myRequests = async (req, res) => {
     });
   }
 };
-
+//////////////////Get DJ Que sorted according to BPM/////////////////
 const getDjQue = async (req, res) => {
   try {
-    const bpmQue = await Song.find().sort({ "songFeatures.bpm": -1 });
+    const bpmQue = await Song.find().sort({ "songFeatures.bpm": 1 });
     // .sort({ "songFeatures.bpm": 1 });
     console.log(bpmQue);
     res.status(200).send(bpmQue);

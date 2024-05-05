@@ -223,7 +223,7 @@ const getPlaylist = async (req, res) => {
 ///////////////////////////////Get all the songs in our Database/////////////////////////
 const getAllSongs = async (req, res) => {
   try {
-    const songList = await Song.find().populate("songFeatures");
+    const songList = await Song.find();
     if (!songList) {
       return res(200).json({
         success: false,
