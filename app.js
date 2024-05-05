@@ -27,8 +27,8 @@ if (spotifyApi) {
   console.log(`Spotify client initilized: ${spotifyApi._credentials.clientId}`);
 }
 
-app.get("/spotifyAuth", spotifyAuthorization);
-app.get("/", (req, res) => {
+// app.get("/spotifyAuth", spotifyAuthorization);
+app.get("/test", (req, res) => {
   res.status(200).send("Server is running..");
 });
 
