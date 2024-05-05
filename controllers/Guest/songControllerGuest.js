@@ -3,7 +3,7 @@ const { Request } = require("../../models/request");
 const { Song } = require("../../models/song");
 const { User } = require("../../models/user");
 
-/////////////////////////////////////Reques a track to the DJ/////////////////////////////////////////////////
+/////////////////////////////////////Request a track to the DJ/////////////////////////////////////////////////
 const requestSong = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -93,9 +93,7 @@ const myRequests = async (req, res) => {
 
 const getDjQue = async (req, res) => {
   try {
-    const bpmQue = await Song.find()
-      .populate("songFeatures")
-      .sort(["songFeatures.bpm", "asc"]);
+    const bpmQue = await Song.find().sort({ "songFeatures.bpm": -1 });
     // .sort({ "songFeatures.bpm": 1 });
     console.log(bpmQue);
     res.status(200).send(bpmQue);

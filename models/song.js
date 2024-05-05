@@ -41,12 +41,28 @@ const songSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  songFeatures: {
+    type: {
+      spotifyId: {
+        type: String,
+        default: "",
+      },
+      danceability: {
+        type: Number,
+        default: "",
+      },
+      bpm: {
+        type: Number,
+        default: "",
+      },
+      loudness: {
+        type: Number,
+        default: "",
+      },
+    },
+  },
 });
-songSchema.virtual("songFeatures", {
-  ref: "SongFeature", // ref model to use
-  localField: "spotifyId", // field in mealSchema
-  foreignField: "spotifyId", // The field in meatSchema.
-});
+
 songSchema.virtual("id").get(function () {
   return this._id.toHexString();
 });
