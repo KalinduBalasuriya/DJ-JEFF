@@ -1,10 +1,10 @@
+const spotifyApi = require("../../Authentication/spotifyConfig");
 const { Song } = require("../../models/song");
-const spotifyAPI = require("../../app");
-const { SongFeature } = require("../../models/songFeature");
+// const spotifyAPI = require("../../app");
 
 /////////////////Get all categories from Spotify (For Admin)
 const getCategories = async (req, res) => {
-  spotifyAPI.spotifyAPI
+  spotifyApi.spotifyApi
     .getCategories({
       limit: 20,
     })
@@ -35,7 +35,7 @@ const getCategories = async (req, res) => {
 ///////////////////////Get all playlists belong to a category//////////////////////////
 const getCategoryPlaylists = async (req, res) => {
   const categoryId = req.params.categoryid;
-  spotifyAPI.spotifyAPI
+  spotifyApi.spotifyApi
     .getPlaylistsForCategory(categoryId, {
       limit: 20,
       offset: 0,
@@ -72,7 +72,7 @@ const addTracks = async (req, res) => {
 
   try {
     //Fetching audio tracks
-    const songTracks = await spotifyAPI.spotifyAPI.getTracks(trackIds);
+    const songTracks = await spotifyApi.spotifyApi.getTracks(trackIds);
     if (!songTracks) {
       return res.status(500).json({
         success: false,
@@ -86,7 +86,7 @@ const addTracks = async (req, res) => {
     }
     //Fetching audio features of tracks
     const audioFeatures =
-      await spotifyAPI.spotifyAPI.getAudioFeaturesForTracks(trackIds);
+      await spotifyApi.spotifyApi.getAudioFeaturesForTracks(trackIds);
 
     // Filter null values of tracks
     let tracks = songTracks.body.tracks;
@@ -109,15 +109,28 @@ const addTracks = async (req, res) => {
     const fetchedTracks = trackIds.filter((trackId) =>
       tracks.some((track) => track.id === trackId)
     );
-    const isDatabaseEmpty = !(await Song.find().length);
+    console.log(fetchedTracks);
+    const isDatabaseEmpty = (await Song.find()).length === 0;
     console.log(`Is DB empty? :${isDatabaseEmpty}`);
+    const AllNotMatchingFetchedTracks = (
+      await Song.find({
+        spotifyId: { $nin: fetchedTracks },
+      })
+    ).length;
+
     const isAllFetchedTracksExisting =
       (
         await Song.find({
-          spotifyId: !{ $in: fetchedTracks },
+          spotifyId: { $nin: fetchedTracks },
         })
       ).length === 0;
-    if (isAllFetchedTracksExisting && !isAllFetchedTracksExisting) {
+
+    console.log(`isAllFetchedTracksExisting : ${AllNotMatchingFetchedTracks}`);
+    if (
+      isAllFetchedTracksExisting &&
+      isAllFetchedTracksExisting !== null &&
+      isDatabaseEmpty !== true
+    ) {
       return res.status(200).json({
         success: true,
         message: "Track(s) already in the playlist",
@@ -192,7 +205,7 @@ const addTracks = async (req, res) => {
 ///////////////////////////////Get a playlist of a category using a category ID//////////////////////////
 const getPlaylist = async (req, res) => {
   const playListId = req.params.playlistid;
-  spotifyAPI.spotifyAPI.getPlaylist(playListId).then(
+  spotifyApi.spotifyApi.getPlaylist(playListId).then(
     function (data) {
       res.status(200).json({
         success: true,

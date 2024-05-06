@@ -1,5 +1,5 @@
-const spotifyWebApi = require("spotify-web-api-node");
-const spotifyAPI = require("../app");
+// const spotifyAPI = require("../app");
+const spotifyApi = require("./spotifyConfig");
 
 let spotifyAccessToken = null;
 let spotifyTokenExpiresIn = null;
@@ -7,8 +7,8 @@ let tokenIssuedAt = null;
 
 const spotifyAuthorization = async (req, res) => {
   try {
-    const tokenData = await spotifyAPI.spotifyAPI.clientCredentialsGrant();
-    spotifyAPI.spotifyAPI.setAccessToken(tokenData.body["access_token"]);
+    const tokenData = await spotifyApi.spotifyApi.clientCredentialsGrant();
+    spotifyApi.spotifyApi.setAccessToken(tokenData.body["access_token"]);
 
     spotifyAccessToken = tokenData.body["access_token"];
     spotifyTokenExpiresIn = tokenData.body["expires_in"];
@@ -27,8 +27,8 @@ const spotifyAuthorization = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const newTokenData = await spotifyAPI.spotifyAPI.clientCredentialsGrant();
-    spotifyAPI.spotifyAPI.setAccessToken(newTokenData.body["access_token"]);
+    const newTokenData = await spotifyApi.spotifyApi.clientCredentialsGrant();
+    spotifyApi.spotifyApi.setAccessToken(newTokenData.body["access_token"]);
 
     spotifyAccessToken = newTokenData.body["access_token"];
     spotifyTokenExpiresIn = newTokenData.body["expires_in"];
@@ -43,7 +43,7 @@ const refreshToken = async (req, res) => {
 const checkToken = async (req, res, next) => {
   if (spotifyAccessToken) {
     const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-    const expirationTime = tokenIssuedAt + 10;
+    const expirationTime = tokenIssuedAt + 3000;
     const is = expirationTime <= currentTime;
     console.log(`current tim: ${currentTime}`);
     console.log(`expiration tim: ${expirationTime}`);

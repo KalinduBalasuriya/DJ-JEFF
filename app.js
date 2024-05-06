@@ -5,7 +5,8 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const cors = require("cors");
 const { spotifyAuthorization } = require("./Authentication/spotifyAuth");
-const spotifyWebApi = require("spotify-web-api-node");
+// const spotifyWebApi = require("spotify-web-api-node");
+// const spotifyApi = require("./Authentication/spotifyConfig");
 
 app.use(cors());
 app.options("*", cors());
@@ -16,16 +17,17 @@ app.use(morgan("tiny"));
 
 const api = process.env.API_URL;
 
+// const { useSpotifyConfig } = require("./controllers/Guest/useSpotifyConfig");
+// app.get("/spotifyInit", useSpotifyConfig);
 //spotify auth
-app.get("/", spotifyAuthorization);
 
-let spotifyApi = new spotifyWebApi({
-  clientId: process.env.SPOTIFY_CLIENT_ID,
-  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-});
-if (spotifyApi) {
-  console.log(`Spotify client initilized: ${spotifyApi._credentials.clientId}`);
-}
+// let spotifyApi = new spotifyWebApi({
+//   clientId: process.env.SPOTIFY_CLIENT_ID,
+//   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+// });
+// if (spotifyApi) {
+//   console.log(`Spotify client initilized: ${spotifyApi._credentials.clientId}`);
+// }
 
 app.get("/spotifyAuth", spotifyAuthorization);
 app.get("/", (req, res) => {
@@ -57,4 +59,4 @@ app.listen(3000, () => {
   console.log("server is runnning on http://localhost:3000");
 });
 
-exports.spotifyAPI = spotifyApi;
+// exports.spotifyAPI = spotifyApi;
