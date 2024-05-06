@@ -37,7 +37,13 @@ const login = async (req, res, next) => {
     );
     res
       .status(200)
-      .send({ user: user.email, name: user.name, token: token, error: null });
+      .send({
+        user: user.email,
+        name: user.name,
+        userRole: user.role,
+        token: token,
+        error: null,
+      });
   } else {
     res.status(200).json({ error: "Invalid Password" });
   }
