@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["Admin", "Seller", "Guest"],
+    enum: ["Admin", "DJ", "Guest"],
     default: "Guest",
   },
   requestedSongs: [String],
