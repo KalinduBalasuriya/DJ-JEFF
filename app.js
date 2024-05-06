@@ -17,17 +17,17 @@ app.use(morgan("tiny"));
 const api = process.env.API_URL;
 
 //spotify auth
-// app.get("/", spotifyAuthorization);
+app.get("/", spotifyAuthorization);
 
-// let spotifyApi = new spotifyWebApi({
-//   clientId: process.env.SPOTIFY_CLIENT_ID,
-//   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-// });
-// if (spotifyApi) {
-//   console.log(`Spotify client initilized: ${spotifyApi._credentials.clientId}`);
-// }
+let spotifyApi = new spotifyWebApi({
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+});
+if (spotifyApi) {
+  console.log(`Spotify client initilized: ${spotifyApi._credentials.clientId}`);
+}
 
-// app.get("/spotifyAuth", spotifyAuthorization);
+app.get("/spotifyAuth", spotifyAuthorization);
 app.get("/", (req, res) => {
   res.status(200).send("Server is running..");
 });
@@ -57,4 +57,4 @@ app.listen(3000, () => {
   console.log("server is runnning on http://localhost:3000");
 });
 
-// exports.spotifyAPI = spotifyApi;
+exports.spotifyAPI = spotifyApi;
