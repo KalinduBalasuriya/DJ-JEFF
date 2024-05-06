@@ -19,7 +19,7 @@ const {
 const router = express.Router();
 
 //routes for songs
-router.get("/allsongs", authJwt(), getAllSongs);
+router.get("/allsongs", getAllSongs);
 router.get(
   "/allcategories",
   authJwt(),
