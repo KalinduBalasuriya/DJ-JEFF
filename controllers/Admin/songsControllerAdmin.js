@@ -106,43 +106,37 @@ const addTracks = async (req, res) => {
       (trackId) => !features.some((feature) => feature.id === trackId)
     );
     /////Here checking is all the fetched songs already in the playlist(Database)
-    const fetchedTracks = trackIds.filter((trackId) =>
-      tracks.some((track) => track.id === trackId)
+
+    trackIdsFoundOnSpotify = trackIds.filter(
+      (track) => !nullTracks.includes(track)
     );
-    console.log(fetchedTracks);
-    const isDatabaseEmpty = (await Song.find()).length === 0;
-    console.log(`Is DB empty? :${isDatabaseEmpty}`);
-    const AllNotMatchingFetchedTracks = (
-      await Song.find({
-        spotifyId: { $nin: fetchedTracks },
-      })
-    ).length;
+    console.log(`fetched track IDs:${trackIdsFoundOnSpotify}`);
 
-    const isAllFetchedTracksExisting =
-      (
-        await Song.find({
-          spotifyId: { $nin: fetchedTracks },
-        })
-      ).length === 0;
+    const tracksOnDb = await Song.find().select("spotifyId -_id");
+    // console.log(`number of existing tracks ${existing.length}`);
+    const notInDb = trackIdsFoundOnSpotify.filter(
+      (id) => !tracksOnDb.some((item) => item.spotifyId === id)
+    );
+    console.log(`Is DB empty? :${tracksOnDb.length === 0}`);
+    console.log(notInDb);
+    console.log(tracksOnDb);
 
-    console.log(`isAllFetchedTracksExisting : ${AllNotMatchingFetchedTracks}`);
     if (
-      isAllFetchedTracksExisting &&
-      isAllFetchedTracksExisting !== null &&
-      isDatabaseEmpty !== true
+      notInDb.length === 0 &&
+      tracksOnDb.length !== 0 &&
+      tracksOnDb.length !== null
     ) {
       return res.status(200).json({
         success: true,
         message: "Track(s) already in the playlist",
         data: {
-          missingSongIds: nullTracks,
-          missingAudioFeatureIds: nullFeatures,
+          missingSongIdsOnSpotify: nullTracks,
+          missingAudioFeatureOnSpotify: nullFeatures,
+          addedSongsIds: notInDb,
         },
         errorMessage: "Track(s) already in the playlist",
       });
     }
-    console.log(tracks.length);
-    console.log(isAllFetchedTracksExisting);
 
     //saving audio track in Database
     for (const element of tracks) {
@@ -186,6 +180,7 @@ const addTracks = async (req, res) => {
       data: {
         missingSongIds: nullTracks,
         missingAudioFeatureIds: nullFeatures,
+        addedSongsIds: notInDb,
       },
       errorMessage: null,
     });
@@ -316,7 +311,7 @@ const deleteTracks = async (req, res) => {
 const deleteAllTracks = async (req, res) => {
   try {
     const deleteAll = await Song.deleteMany();
-    res.status(200).send(deleteAll.deletedCount);
+    res.status(200).send("songs deleted");
   } catch (err) {
     res.status(500).send(err.message);
   }
