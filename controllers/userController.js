@@ -13,7 +13,13 @@ const signUp = async (req, res) => {
   });
 
   user = await user.save();
-  if (!user) return res.status(400).send("The user cannot be created!");
+  if (!user)
+    return res.status(400).json({
+      success: false,
+      message: null,
+      data: null,
+      errorMessage: "User cannot be created!",
+    });
   res.send(user);
 };
 
@@ -23,7 +29,12 @@ const login = async (req, res, next) => {
   const secret = process.env.secret;
 
   if (!user) {
-    return res.status(200).json({ error: "User not found" });
+    return res.status(200).json({
+      success: false,
+      message: null,
+      data: null,
+      errorMessage: "Invalid e-mail/Username",
+    });
   }
 
   if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
@@ -43,7 +54,12 @@ const login = async (req, res, next) => {
       error: null,
     });
   } else {
-    res.status(200).json({ error: "Invalid Password" });
+    res.status(200).json({
+      success: false,
+      message: null,
+      data: null,
+      errorMessage: "Invalid Password",
+    });
   }
   next();
 };
