@@ -48,7 +48,7 @@ const requestSong = async (req, res) => {
       success: true,
       message: "Track successfully added to the DJ's que",
       data: null,
-      errorMessage: "Track successfully added to the DJ's que",
+      errorMessage: null,
     });
   } catch (err) {
     res.status(500).json({
